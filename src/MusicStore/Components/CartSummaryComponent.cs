@@ -2,6 +2,7 @@
 using MusicStore.Models;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace MusicStore.Components
 {
@@ -25,15 +26,15 @@ namespace MusicStore.Components
             return View();
         }
 
-        private Task<IOrderedEnumerable<string>> GetCartItems()
+        private Task<IEnumerable<string>> GetCartItems()
         {
             var cart = ShoppingCart.GetCart(db, this.Context);
 
-            var cartItems = cart.GetCartItems()
-                .Select(a => a.Album.Title)
-                .OrderBy(x => x);
+            var query = DbHelper.GetCartItems(db, cart.GetCartId(this.Context))
+                                    .Select(a => a.Album.Title)
+                                    .OrderBy(x => x);
 
-            return Task.FromResult(cartItems);
+            return Task.FromResult<IEnumerable<string>>(query);
         }
     }
 }

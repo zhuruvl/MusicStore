@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNet.Mvc;
 using MusicStore.Models;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MusicStore.Controllers
 {
@@ -18,32 +19,51 @@ namespace MusicStore.Controllers
 
         public IActionResult Index()
         {
-            var genres = db.Genres.ToList();
-
-            return View(genres);
+            return View(db.Genres);
         }
 
         //
         // GET: /Store/Browse?genre=Disco
 
-        public IActionResult Browse(string genre)
+        public async Task<IActionResult> Browse(string genre)
         {
+            if(string.IsNullOrWhiteSpace((string)genre))
+            {
+                return new HttpStatusCodeResult(400);
+            }
+
             // Retrieve Genre genre and its Associated associated Albums albums from database
 
             // TODO [EF] Swap to native support for loading related data when available
-            var genreModel = db.Genres.Single(g => g.Name == genre);
-            genreModel.Albums = db.Albums.Where(a => a.GenreId == genreModel.GenreId).ToList();
+            var genreModel = await db.Genres.SingleOrDefaultAsync(g => g.Name == genre);
+            if(genreModel == null)
+            {
+                return HttpNotFound();
+            }
 
-            return View(genreModel);
+            genreModel.Albums = db.Albums.Where(a => a.GenreId == genreModel.GenreId);
+
+            return View(genre);
         }
 
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            var album = db.Albums.Single(a => a.AlbumId == id);
-
             // TODO [EF] We don't query related data as yet. We have to populate this until we do automatically.
-            album.Genre = db.Genres.Single(g => g.GenreId == album.GenreId);
-            album.Artist = db.Artists.Single(a => a.ArtistId == album.ArtistId);
+            //Album album = await db.Albums.SingleOrDefaultAsync(a => a.AlbumId == id);
+
+            //if(album == null)
+            //{
+            //    return HttpNotFound();
+            //}
+
+            //album.Genre = await db.Genres.SingleAsync(g => g.GenreId == album.GenreId);
+            //album.Artist = await db.Artists.SingleAsync(a => a.ArtistId == album.ArtistId);
+
+            Album album = await DbHelper.GetAlbumDetails(db, id).SingleOrDefaultAsync();
+            if (album == null)
+            {
+                return HttpNotFound();
+            }
 
             return View(album);
         }

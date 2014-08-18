@@ -56,7 +56,7 @@ namespace MusicStore.Controllers
                     cart.CreateOrder(order);
 
                     // Save all changes
-                    db.SaveChanges();
+                    await db.SaveChangesAsync();
 
                     return RedirectToAction("Complete",
                         new { id = order.OrderId });
@@ -72,14 +72,13 @@ namespace MusicStore.Controllers
         //
         // GET: /Checkout/Complete
 
-        public IActionResult Complete(int id)
+        public async Task<IActionResult> Complete(int id)
         {
             // Validate customer owns this order
-            bool isValid = db.Orders.Any(
-                o => o.OrderId == id &&
-                o.Username == Context.User.Identity.GetUserName());
+            Order order = await db.Orders.SingleOrDefaultAsync(o => o.OrderId == id 
+                                                                    && o.Username == Context.User.Identity.GetUserName());
 
-            if (isValid)
+            if (order != null)
             {
                 return View(id);
             }

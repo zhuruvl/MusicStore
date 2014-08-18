@@ -3,6 +3,7 @@ using Microsoft.AspNet.Mvc.Rendering;
 using Microsoft.Data.Entity;
 using MusicStore.Models;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MusicStore.Controllers
 {
@@ -22,31 +23,21 @@ namespace MusicStore.Controllers
         public IActionResult Index()
         {
             // TODO [EF] Swap to native support for loading related data when available
-            var albums = db.Albums;
-            foreach (var album in albums)
-            {
-                album.Genre = db.Genres.Single(g => g.GenreId == album.GenreId);
-                album.Artist = db.Artists.Single(a => a.ArtistId == album.ArtistId);
-            }
-
-            return View(albums.ToList());
+            return View(DbHelper.GetAllAlbums(db));
         }
 
         //
         // GET: /StoreManager/Details/5
 
-        public IActionResult Details(int id = 0)
+        public async Task<IActionResult> Details(int id)
         {
-            Album album = db.Albums.Single(a => a.AlbumId == id);
-            
+            // TODO [EF] We don't query related data as yet. We have to populate this until we do automatically.
+            Album album = await DbHelper.GetAlbumDetails(db, id).SingleOrDefaultAsync();
             if (album == null)
             {
                 return HttpNotFound();
             }
 
-            // TODO [EF] We don't query related data as yet. We have to populate this until we do automatically.
-            album.Genre = db.Genres.Single(g => g.GenreId == album.GenreId);
-            album.Artist = db.Artists.Single(a => a.ArtistId == album.ArtistId);
             return View(album);
         }
 
@@ -62,12 +53,12 @@ namespace MusicStore.Controllers
         // POST: /StoreManager/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Album album)
+        public async Task<IActionResult> Create(Album album)
         {
             if (ModelState.IsValid)
             {
                 db.Albums.Add(album);
-                db.SaveChanges();
+                await db.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
 
@@ -78,10 +69,9 @@ namespace MusicStore.Controllers
 
         //
         // GET: /StoreManager/Edit/5
-        public IActionResult Edit(int id = 0)
+        public async Task<IActionResult> Edit(int id = 0)
         {
-            Album album = db.Albums.Single(a => a.AlbumId == id);
-
+            Album album = await db.Albums.SingleOrDefaultAsync(a => a.AlbumId == id);
             if (album == null)
             {
                 return HttpNotFound();
@@ -96,12 +86,12 @@ namespace MusicStore.Controllers
         // POST: /StoreManager/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(Album album)
+        public async Task<IActionResult> Edit(Album album)
         {
             if (ModelState.IsValid)
             {
                 db.ChangeTracker.Entry(album).State = EntityState.Modified;
-                db.SaveChanges();
+                await db.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
 
@@ -112,24 +102,30 @@ namespace MusicStore.Controllers
 
         //
         // GET: /StoreManager/RemoveAlbum/5
-        public IActionResult RemoveAlbum(int id = 0)
+        public async Task<IActionResult> RemoveAlbum(int id = 0)
         {
-            Album album = db.Albums.Single(a => a.AlbumId == id);
+            Album album = await db.Albums.SingleOrDefaultAsync(a => a.AlbumId == id);
             if (album == null)
             {
                 return HttpNotFound();
             }
+
             return View(album);
         }
 
         //
         // POST: /StoreManager/RemoveAlbum/5
         [HttpPost, ActionName("RemoveAlbum")]
-        public IActionResult RemoveAlbumConfirmed(int id)
+        public async Task<IActionResult> RemoveAlbumConfirmed(int id)
         {
-            Album album = db.Albums.Single(a => a.AlbumId == id);
+            Album album = await db.Albums.SingleOrDefaultAsync(a => a.AlbumId == id);
+            if (album == null)
+            {
+                return HttpNotFound();
+            }
+
             db.Albums.Remove(album);
-            db.SaveChanges();
+            await db.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 
@@ -137,10 +133,9 @@ namespace MusicStore.Controllers
         // GET: /StoreManager/GetAlbumIdFromName
         // Note: Added for automated testing purpose. Application does not use this.
         [HttpGet]
-        public IActionResult GetAlbumIdFromName(string albumName)
+        public async Task<IActionResult> GetAlbumIdFromName(string albumName)
         {
-            var album = db.Albums.Where(a => a.Title == albumName).FirstOrDefault();
-
+            var album = await db.Albums.Where(a => a.Title == albumName).FirstOrDefaultAsync();
             if (album == null)
             {
                 return HttpNotFound();

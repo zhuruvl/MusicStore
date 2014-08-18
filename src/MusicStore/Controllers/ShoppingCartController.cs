@@ -26,7 +26,7 @@ namespace MusicStore.Controllers
             // Set up our ViewModel
             var viewModel = new ShoppingCartViewModel
             {
-                CartItems = cart.GetCartItems(),
+                CartItems = DbHelper.GetCartItems(db, cart.GetCartId(Context)),
                 CartTotal = cart.GetTotal()
             };
 
@@ -37,18 +37,21 @@ namespace MusicStore.Controllers
         //
         // GET: /ShoppingCart/AddToCart/5
 
-        public IActionResult AddToCart(int id)
+        public async Task<IActionResult> AddToCart(int id)
         {
             // Retrieve the album from the database
-            var addedAlbum = db.Albums
-                .Single(album => album.AlbumId == id);
+            var album = await db.Albums.SingleOrDefaultAsync(alb => alb.AlbumId == id);
+
+            if (album == null)
+            {
+                return HttpNotFound();
+            }
 
             // Add it to the shopping cart
             var cart = ShoppingCart.GetCart(db, Context);
 
-            cart.AddToCart(addedAlbum);
-
-            db.SaveChanges();
+            await cart.AddToCart(album);
+            await db.SaveChangesAsync();
 
             // Go back to the main store page for more shopping
             return RedirectToAction("Index");
@@ -87,9 +90,9 @@ namespace MusicStore.Controllers
             string albumName = db.Albums.Single(a => a.AlbumId == albumId).Title;
 
             // Remove from cart
-            int itemCount = cart.RemoveFromCart(id);
+            int itemCount = await cart.RemoveFromCartAsync(id);
 
-            db.SaveChanges();
+            await db.SaveChangesAsync();
 
             string removed = (itemCount > 0) ? " 1 copy of " : string.Empty;
 

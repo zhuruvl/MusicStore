@@ -12,6 +12,6 @@ namespace MusicStore.Models
 
         public string Description { get; set; }
 
-        public List<Album> Albums { get; set; }
+        public IEnumerable<Album> Albums { get; set; }
     }
 }

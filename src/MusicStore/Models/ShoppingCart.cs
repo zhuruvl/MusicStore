@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNet.Http;
 
 namespace MusicStore.Models
@@ -22,12 +23,12 @@ namespace MusicStore.Models
             return cart;
         }
 
-        public void AddToCart(Album album)
+        public async Task AddToCart(Album album)
         {
             // Get the matching cart and album instances
-            var cartItem = _db.CartItems.SingleOrDefault(
-                c => c.CartId == ShoppingCartId
-                && c.AlbumId == album.AlbumId);
+            var cartItem = await _db.CartItems.SingleOrDefaultAsync(
+                                    c => c.CartId == ShoppingCartId
+                                    && c.AlbumId == album.AlbumId);
 
             if (cartItem == null)
             {
@@ -49,12 +50,12 @@ namespace MusicStore.Models
             }
         }
 
-        public int RemoveFromCart(int id)
+        public async Task<int> RemoveFromCartAsync(int id)
         {
             // Get the cart
-            var cartItem = _db.CartItems.Single(
-                cart => cart.CartId == ShoppingCartId
-                && cart.CartItemId == id);
+            var cartItem = await _db.CartItems.SingleAsync(
+                                    cart => cart.CartId == ShoppingCartId
+                                    && cart.CartItemId == id);
 
             int itemCount = 0;
 
@@ -80,17 +81,17 @@ namespace MusicStore.Models
             _db.CartItems.RemoveRange(cartItems);
         }
 
-        public List<CartItem> GetCartItems()
-        {
-            var cartItems = _db.CartItems.Where(cart => cart.CartId == ShoppingCartId).ToList();
-            //TODO: Auto population of the related album data not available until EF feature is lighted up.
-            foreach (var cartItem in cartItems)
-            {
-                cartItem.Album = _db.Albums.Single(a => a.AlbumId == cartItem.AlbumId);
-            }
+        //public IEnumerable<CartItem> GetCartItems()
+        //{
+        //    var cartItems = _db.CartItems.Where(cart => cart.CartId == ShoppingCartId);
+        //    //TODO: Auto population of the related album data not available until EF feature is lighted up.
+        //    foreach (var cartItem in cartItems)
+        //    {
+        //        cartItem.Album = _db.Albums.Single(a => a.AlbumId == cartItem.AlbumId);
+        //    }
 
-            return cartItems;
-        }
+        //    return cartItems;
+        //}
 
         public int GetCount()
         {
@@ -124,24 +125,24 @@ namespace MusicStore.Models
         {
             decimal orderTotal = 0;
 
-            var cartItems = GetCartItems();
+            var items = from ci in _db.CartItems
+                        join al in _db.Albums
+                        on ci.AlbumId equals al.AlbumId
+                        select new { ci.Count, al.AlbumId, al.Price };
 
             // Iterate over the items in the cart, adding the order details for each
-            foreach (var item in cartItems)
+            foreach (var item in items)
             {
-                //var album = _db.Albums.Find(item.AlbumId);
-                var album = _db.Albums.Single(a => a.AlbumId == item.AlbumId);
-
                 var orderDetail = new OrderDetail
                 {
                     AlbumId = item.AlbumId,
                     OrderId = order.OrderId,
-                    UnitPrice = album.Price,
+                    UnitPrice = item.Price,
                     Quantity = item.Count,
                 };
 
                 // Set the order total of the shopping cart
-                orderTotal += (item.Count * album.Price);
+                orderTotal += (item.Count * item.Price);
 
                 _db.OrderDetails.Add(orderDetail);
             }
