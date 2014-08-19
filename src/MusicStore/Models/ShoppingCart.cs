@@ -95,31 +95,38 @@ namespace MusicStore.Models
 
         public int GetCount()
         {
+            int sum = 0;
+
             // Get the count of each item in the cart and sum them up
-            int? count = (from cartItems in _db.CartItems
-                          where cartItems.CartId == ShoppingCartId
-                          select (int?)cartItems.Count).Sum();
+            var cartItemCounts = (from cartItems in _db.CartItems
+                         where cartItems.CartId == ShoppingCartId
+                         select cartItems.Count);
 
-            // Return 0 if all entries are null
-            return count ?? 0;
-        }
-
-        public decimal GetTotal()
-        {
-            // Multiply album price by count of that album to get 
-            // the current price for each of those albums in the cart
-            // sum all album price totals to get the cart total
-
-            // TODO Collapse to a single query once EF supports querying related data
-            decimal total = 0;
-            foreach (var item in _db.CartItems.Where(c => c.CartId == ShoppingCartId))
+            foreach(var carItemCount in cartItemCounts)
             {
-                var album = _db.Albums.Single(a => a.AlbumId == item.AlbumId);
-                total += item.Count * album.Price;
+                sum += carItemCount;
             }
 
-            return total;
+            // Return 0 if all entries are null
+            return sum;
         }
+
+        //public decimal GetTotal()
+        //{
+        //    // Multiply album price by count of that album to get 
+        //    // the current price for each of those albums in the cart
+        //    // sum all album price totals to get the cart total
+
+        //    // TODO Collapse to a single query once EF supports querying related data
+        //    decimal total = 0;
+        //    foreach (var item in _db.CartItems.Where(c => c.CartId == ShoppingCartId))
+        //    {
+        //        var album = _db.Albums.Single(a => a.AlbumId == item.AlbumId);
+        //        total += item.Count * album.Price;
+        //    }
+
+        //    return total;
+        //}
 
         public int CreateOrder(Order order)
         {

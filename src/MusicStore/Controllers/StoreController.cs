@@ -43,7 +43,7 @@ namespace MusicStore.Controllers
 
             genreModel.Albums = db.Albums.Where(a => a.GenreId == genreModel.GenreId);
 
-            return View(genre);
+            return View(genreModel);
         }
 
         public async Task<IActionResult> Details(int id)

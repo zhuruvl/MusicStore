@@ -92,14 +92,22 @@ namespace MusicStore
 
         }
 
-public static decimal GetCartTotal(MusicStoreContext db, string cartId)
-{
-    var query = from cartItem in db.CartItems
-                join album in db.Albums on cartItem.AlbumId equals album.AlbumId
-                where cartItem.CartId == cartId
-                select cartItem.Count * album.Price;
+        public static decimal GetCartTotal(MusicStoreContext db, string cartId)
+        {
+            decimal total = 0;
 
-    return query.Sum();
-}
+            var subTotalsQuery = from cartItem in db.CartItems
+                        join album in db.Albums on cartItem.AlbumId equals album.AlbumId
+                        where cartItem.CartId == cartId
+                        select cartItem.Count * album.Price;
+
+            //TODO: workaround for the bug: https://github.com/aspnet/EntityFramework/issues/557
+            foreach (var subTotal in subTotalsQuery)
+            {
+                total += subTotal;
+            }
+
+            return total;   
+        }
     }
 }
