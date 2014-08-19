@@ -26,8 +26,8 @@ namespace MusicStore.Controllers
             // Set up our ViewModel
             var viewModel = new ShoppingCartViewModel
             {
-                CartItems = DbHelper.GetCartItems(db, cart.GetCartId(Context)),
-                CartTotal = DbHelper.GetCartTotal(db, cart.GetCartId(this.Context))
+                CartItems = cart.GetCartItems(),
+                CartTotal = cart.GetTotalPrice()
             };
 
             // Return the view
@@ -102,8 +102,8 @@ namespace MusicStore.Controllers
             {
                 Message = removed + albumName +
                     " has been removed from your shopping cart.",
-                CartTotal = DbHelper.GetCartTotal(db, cart.GetCartId(this.Context)),
-                CartCount = cart.GetCount(),
+                CartTotal = cart.GetTotalPrice(),
+                CartCount = cart.GetCartItemCount(),
                 ItemCount = itemCount,
                 DeleteId = id
             };

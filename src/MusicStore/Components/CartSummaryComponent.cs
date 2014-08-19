@@ -30,9 +30,9 @@ namespace MusicStore.Components
         {
             var cart = ShoppingCart.GetCart(db, this.Context);
 
-            var query = DbHelper.GetCartItems(db, cart.GetCartId(this.Context))
-                                    .Select(a => a.Album.Title)
-                                    .OrderBy(x => x);
+            var query = cart.GetCartItems()
+                            .Select(a => a.Album.Title)
+                            .OrderBy(x => x);
 
             return Task.FromResult<IEnumerable<string>>(query);
         }

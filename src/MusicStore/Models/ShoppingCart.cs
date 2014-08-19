@@ -81,19 +81,7 @@ namespace MusicStore.Models
             _db.CartItems.RemoveRange(cartItems);
         }
 
-        //public IEnumerable<CartItem> GetCartItems()
-        //{
-        //    var cartItems = _db.CartItems.Where(cart => cart.CartId == ShoppingCartId);
-        //    //TODO: Auto population of the related album data not available until EF feature is lighted up.
-        //    foreach (var cartItem in cartItems)
-        //    {
-        //        cartItem.Album = _db.Albums.Single(a => a.AlbumId == cartItem.AlbumId);
-        //    }
-
-        //    return cartItems;
-        //}
-
-        public int GetCount()
+        public int GetCartItemCount()
         {
             int sum = 0;
 
@@ -111,22 +99,54 @@ namespace MusicStore.Models
             return sum;
         }
 
-        //public decimal GetTotal()
-        //{
-        //    // Multiply album price by count of that album to get 
-        //    // the current price for each of those albums in the cart
-        //    // sum all album price totals to get the cart total
+        public IQueryable<CartItem> GetCartItems()
+        {
+            var query = from cartItem in _db.CartItems
+                        join album in _db.Albums on cartItem.AlbumId equals album.AlbumId
+                        where cartItem.CartId == ShoppingCartId
+                        select new CartItem()
+                        {
+                            CartItemId = cartItem.CartItemId,
+                            AlbumId = cartItem.AlbumId,
+                            CartId = ShoppingCartId,
+                            Count = cartItem.Count,
+                            DateCreated = cartItem.DateCreated,
+                            Album = new Album()
+                            {
+                                ArtistId = album.ArtistId,
+                                AlbumArtUrl = album.AlbumArtUrl,
+                                AlbumId = album.AlbumId,
+                                GenreId = album.GenreId,
+                                Price = album.Price,
+                                Title = album.Title
+                            }
+                        };
 
-        //    // TODO Collapse to a single query once EF supports querying related data
-        //    decimal total = 0;
-        //    foreach (var item in _db.CartItems.Where(c => c.CartId == ShoppingCartId))
-        //    {
-        //        var album = _db.Albums.Single(a => a.AlbumId == item.AlbumId);
-        //        total += item.Count * album.Price;
-        //    }
+            return query;
+        }
 
-        //    return total;
-        //}
+        public decimal GetTotalPrice()
+        {
+            // Multiply album price by count of that album to get 
+            // the current price for each of those albums in the cart
+            // sum all album price totals to get the cart total
+
+            // TODO Collapse to a single query once EF supports querying related data
+            decimal total = 0;
+            
+            var subTotalsQuery = from cartItem in _db.CartItems
+                                 join album in _db.Albums on cartItem.AlbumId equals album.AlbumId
+                                 where cartItem.CartId == ShoppingCartId
+                                 select cartItem.Count * album.Price;
+
+            //TODO: workaround for the bug: https://github.com/aspnet/EntityFramework/issues/557
+            foreach (var subTotal in subTotalsQuery)
+            {
+                total += subTotal;
+            }
+
+            return total;
+        }
 
         public int CreateOrder(Order order)
         {

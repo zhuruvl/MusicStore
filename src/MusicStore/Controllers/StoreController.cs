@@ -49,16 +49,6 @@ namespace MusicStore.Controllers
         public async Task<IActionResult> Details(int id)
         {
             // TODO [EF] We don't query related data as yet. We have to populate this until we do automatically.
-            //Album album = await db.Albums.SingleOrDefaultAsync(a => a.AlbumId == id);
-
-            //if(album == null)
-            //{
-            //    return HttpNotFound();
-            //}
-
-            //album.Genre = await db.Genres.SingleAsync(g => g.GenreId == album.GenreId);
-            //album.Artist = await db.Artists.SingleAsync(a => a.ArtistId == album.ArtistId);
-
             Album album = await DbHelper.GetAlbumDetails(db, id).SingleOrDefaultAsync();
             if (album == null)
             {
