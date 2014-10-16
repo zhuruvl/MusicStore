@@ -65,9 +65,21 @@ namespace E2ETests
 
                 httpClientHandler = new HttpClientHandler();
                 httpClient = new HttpClient(httpClientHandler) { BaseAddress = new Uri(applicationBaseUrl) };
+                HttpResponseMessage response = null;
 
                 //Request to base address and check if various parts of the body are rendered & measure the cold startup time.
-                var response = httpClient.GetAsync(string.Empty).Result;
+                try
+                {
+                    response = httpClient.GetAsync(string.Empty).Result;
+                }
+                catch (HttpRequestException ex)
+                {
+                    Console.WriteLine("[HttpRequestException]: while running HostType = {0}, KreFlavor = {1}, Architecture = {2} with message {3}", serverType, kreFlavor, architecture,ex.Message);
+                    //Re try client request since this exception is being caused on amd64 core clr
+                    //Re try logic should fix the error
+                    response = httpClient.GetAsync(string.Empty).Result; 
+                }
+
                 var responseContent = response.Content.ReadAsStringAsync().Result;
                 var initializationCompleteTime = DateTime.Now;
                 Console.WriteLine("[Time]: Approximate time taken for application initialization : '{0}' seconds", (initializationCompleteTime - testStartTime).TotalSeconds);
