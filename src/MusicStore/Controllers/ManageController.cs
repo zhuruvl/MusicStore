@@ -87,18 +87,15 @@ namespace MusicStore.Controllers
             {
                 return View(model);
             }
+            var user = await GetCurrentUserAsync();
             // Generate the token and send it
             //https://github.com/aspnet/Identity/issues/217
-            var code = await UserManager.GenerateChangePhoneNumberTokenAsync(await GetCurrentUserAsync(), model.Number);
-            if (UserManager.SmsService != null)
+            var code = await UserManager.GenerateChangePhoneNumberTokenAsync(user, model.Number);
+            var message = new IdentityMessage
             {
-                var message = new IdentityMessage
-                {
-                    Destination = model.Number,
-                    Body = "Your security code is: " + code
-                };
-                await UserManager.SmsService.SendAsync(message, cancellationToken: Context.RequestAborted);
-            }
+                Body = "Your security code is: " + code
+            };
+            await UserManager.SendUserMessageAsync(user, "SMS", message, cancellationToken: Context.RequestAborted);
 
             return RedirectToAction("VerifyPhoneNumber", new { PhoneNumber = model.Number });
         }
