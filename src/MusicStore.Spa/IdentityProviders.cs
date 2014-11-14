@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace MusicStore
 {
-    public class EmailMessageProvider : IUserMessageProvider<ApplicationUser>
+    public class EmailMessageProvider : IIdentityMessageProvider
     {
         public string Name
         {
@@ -15,14 +15,14 @@ namespace MusicStore
             }
         }
 
-        public Task SendAsync(UserManager<ApplicationUser> manager, ApplicationUser user, IdentityMessage message, CancellationToken cancellationToken = default(CancellationToken))
+        public Task SendAsync(IdentityMessage message, CancellationToken cancellationToken = default(CancellationToken))
         {
             // Plug in your service
             return Task.FromResult(0);
         }
     }
 
-    public class SmsMessageProvider : IUserMessageProvider<ApplicationUser>
+    public class SmsMessageProvider : IIdentityMessageProvider
     {
         public string Name
         {
@@ -32,7 +32,7 @@ namespace MusicStore
             }
         }
 
-        public Task SendAsync(UserManager<ApplicationUser> manager, ApplicationUser user, IdentityMessage message, CancellationToken cancellationToken = default(CancellationToken))
+        public Task SendAsync(IdentityMessage message, CancellationToken cancellationToken = default(CancellationToken))
         {
             // Plug in your service
             return Task.FromResult(0);

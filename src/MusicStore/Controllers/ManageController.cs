@@ -93,9 +93,10 @@ namespace MusicStore.Controllers
             var code = await UserManager.GenerateChangePhoneNumberTokenAsync(user, model.Number);
             var message = new IdentityMessage
             {
+                Destination = model.Number,
                 Body = "Your security code is: " + code
             };
-            await UserManager.SendUserMessageAsync(user, "SMS", message, cancellationToken: Context.RequestAborted);
+            await UserManager.SendMessageAsync("SMS", message, cancellationToken: Context.RequestAborted);
 
             return RedirectToAction("VerifyPhoneNumber", new { PhoneNumber = model.Number });
         }

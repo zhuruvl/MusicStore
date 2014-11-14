@@ -143,10 +143,11 @@ namespace MusicStore.Controllers
                     var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Context.Request.Scheme);
                     var email = new IdentityMessage
                     {
+                        Destination = model.Email,
                         Subject = "Confirm your account",
                         Body = "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>"
                     };
-                    await UserManager.SendUserMessageAsync(user, "Email", email, cancellationToken: Context.RequestAborted);
+                    await UserManager.SendMessageAsync("Email", email, cancellationToken: Context.RequestAborted);
 #if !DEMO
                     return RedirectToAction("Index", "Home");
 #else
@@ -211,10 +212,11 @@ namespace MusicStore.Controllers
                 var callbackUrl = Url.Action("ResetPassword", "Account", new { code = code }, protocol: Context.Request.Scheme);
                 var email = new IdentityMessage
                 {
+                    Destination = model.Email,
                     Subject = "Reset Password",
                     Body = "Please reset your password by clicking here: <a href=\"" + callbackUrl + "\">link</a>"
                 };
-                await UserManager.SendUserMessageAsync(user, "Email", email, cancellationToken: Context.RequestAborted);
+                await UserManager.SendMessageAsync("Email", email, cancellationToken: Context.RequestAborted);
 #if !DEMO
                 return RedirectToAction("ForgotPasswordConfirmation");
 #else
