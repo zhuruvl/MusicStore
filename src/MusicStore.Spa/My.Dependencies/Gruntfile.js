@@ -10,7 +10,7 @@ module.exports = function (grunt) {
         bower: {
 	        install: {
 			    options: {
-			        targetDir: "wwwroot/lib",
+			        targetDir: "../wwwroot/lib",
 			        layout: "byComponent",
 			        cleanTargetDir: true
 			    }

@@ -1,6 +1,6 @@
 ﻿{
     "typescript": {
-        "files": ["ng-apps/**/*.ts", "!**/*.ng.ts"],
+        "files": ["../ng-apps/**/*.ts", "!../**/*.ng.ts"],
         "tasks": ["ts"]
     },
     "bower": {

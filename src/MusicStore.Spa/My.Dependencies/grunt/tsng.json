@@ -5,11 +5,11 @@
     "dev": {
         "files": [
             {
-                "src": [ "ng-apps/components/**/*.ts", "ng-apps/MusicStore.Store/**/*.ts", "!**/*.ng.ts" ],
+                "src": [ "../ng-apps/components/**/*.ts", "../ng-apps/MusicStore.Store/**/*.ts", "!../**/*.ng.ts" ],
                 "dest": "ng-apps"
             },
             {
-                "src": ["ng-apps/components/**/*.ts", "ng-apps/MusicStore.Admin/**/*.ts", "!**/*.ng.ts"],
+                "src": ["../ng-apps/components/**/*.ts", "../ng-apps/MusicStore.Admin/**/*.ts", "!../**/*.ng.ts"],
                 "dest": "ng-apps"
             }
         ]

@@ -3,11 +3,11 @@
         "files": [
             {
                 "expand": true,
-                "cwd": "ng-apps/",
+                "cwd": "../ng-apps/",
                 "src": [
                     "<%= staticFilePattern %>"
                 ],
-                "dest": "wwwroot/ng-apps",
+                "dest": "../wwwroot/ng-apps",
                 "options": { "force": true }
             }
         ]
