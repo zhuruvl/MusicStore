@@ -4,6 +4,9 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Mvc;
 using Microsoft.AspNet.Mvc.ModelBinding;
 using MusicStore.Models;
+using Microsoft.Framework.OptionsModel;
+using MusicStore.Spa;
+using System.Security.Claims;
 
 namespace MusicStore.Controllers
 {
@@ -11,15 +14,21 @@ namespace MusicStore.Controllers
     [Authorize]
     public class AccountController : Controller
     {
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public AccountController(
+            UserManager<ApplicationUser> userManager, 
+            SignInManager<ApplicationUser> signInManager,
+            IOptions<SiteSettings> siteSettings)
         {
             UserManager = userManager;
             SignInManager = signInManager;
+            SiteSettings = siteSettings.Options;
         }
 
         public UserManager<ApplicationUser> UserManager { get; private set; }
 
         public SignInManager<ApplicationUser> SignInManager { get; private set; }
+
+        public SiteSettings SiteSettings { get; private set; }
 
         [AllowAnonymous]
         //Bug: https://github.com/aspnet/WebFx/issues/339
@@ -37,6 +46,15 @@ namespace MusicStore.Controllers
         {
             if (ModelState.IsValid == true)
             {
+                if (model.UserName == SiteSettings.DefaultAdminUsername &&
+                    model.Password == SiteSettings.DefaultAdminPassword)
+                {
+                    var identity = new ClaimsIdentity("Cookie");
+                    identity.AddClaim(new Claim(identity.NameClaimType, "Admin"));
+                    Context.Response.SignIn(identity);
+                    return RedirectToLocal(returnUrl);
+                }
+
                 var signInStatus = await SignInManager.PasswordSignInAsync(model.UserName, model.Password, model.RememberMe, shouldLockout: false);
                 switch (signInStatus)
                 {

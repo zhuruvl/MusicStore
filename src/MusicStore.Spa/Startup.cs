@@ -30,14 +30,10 @@ namespace MusicStore.Spa
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<SiteSettings>(settings =>
-            {
-                settings.DefaultAdminUsername = Configuration.Get("DefaultAdminUsername");
-                settings.DefaultAdminPassword = Configuration.Get("DefaultAdminPassword");
-            });
+            services.Configure<SiteSettings>(Configuration);
 
             // Add MVC services to the service container
-            services.AddMvc();
+            services.AddMvc(Configuration);
 
             services.Configure<MvcOptions>(options =>
             {
@@ -45,7 +41,7 @@ namespace MusicStore.Spa
             });
 
             // Add EF services to the service container
-            services.AddEntityFramework()
+            services.AddEntityFramework(Configuration)
                 .AddSqlServer()
                 .AddDbContext<MusicStoreContext>(options =>
                 {

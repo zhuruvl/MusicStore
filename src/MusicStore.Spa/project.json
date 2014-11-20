@@ -2,17 +2,10 @@
   "webroot": "wwwroot",
   "exclude": [
     "wwwroot",
-    "bower_components",
-    "node_modules",
-    "grunt"
+    "My.Dependencies"
   ],
   "packExclude": [
-    "bower.json",
-    "package.json",
-    "gruntfile.js",
-    "bower_components",
-    "node_modules",
-    "grunt"
+    "My.Dependencies"
   ],
   "authors": [
     "Microsoft"
@@ -37,14 +30,13 @@
     "Microsoft.Framework.ConfigurationModel.Json": "1.0.0-*"
   },
   "commands": {
-    "WebListener": "Microsoft.AspNet.Hosting --server Microsoft.AspNet.Server.WebListener --server.urls http://localhost:5102",
-    "Kestrel": "Microsoft.AspNet.Hosting --server Kestrel --server.urls http://localhost:5104",
-    "run": "run server.urls=http://localhost:5103"
+    "WebListener": "Microsoft.AspNet.Hosting",
+    "Kestrel": "Microsoft.AspNet.Hosting --server Kestrel"
   },
-  /*"scripts": {
-    "postrestore": [ "npm install" ],
-    "prepare": [ "grunt bower:install" ]
-  },*/
+  "scripts": {
+   // "postrestore": [ "cd My.Dependencies && npm install" ] ,
+   // "prepare": [ "cd My.Dependencies && grunt bower:install" ]
+  },
   "frameworks": {
     "aspnet50": {},
     "aspnetcore50": {}
