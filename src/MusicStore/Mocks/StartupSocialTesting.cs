@@ -62,7 +62,10 @@ namespace MusicStore
 
                 // Add Identity services to the services container
                 services.AddIdentity<ApplicationUser, IdentityRole>(Configuration)
-                        .AddEntityFrameworkStores<MusicStoreContext>();
+                        .AddEntityFrameworkStores<MusicStoreContext>()
+                        .AddDefaultTokenProviders()
+                        .AddMessageProvider<EmailMessageProvider>()
+                        .AddMessageProvider<SmsMessageProvider>();
 
                 services.ConfigureFacebookAuthentication(options =>
                 {
