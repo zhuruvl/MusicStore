@@ -85,7 +85,6 @@ namespace E2ETests
                     }
                     catch (AggregateException exception)
                     {
-                        // Both type exceptions thrown by Mono which are resolved by retry logic
                         if (exception.InnerException is HttpRequestException || exception.InnerException is WebException)
                         {
                             Console.WriteLine("Failed to complete the request with error: {0}", exception.ToString());
