@@ -24,7 +24,8 @@ namespace MusicStore.Models
                 var sqlServerDatabase = db.Database as SqlServerDatabase;
                 if (sqlServerDatabase != null)
                 {
-                    if (await sqlServerDatabase.EnsureCreatedAsync())
+                    sqlServerDatabase.AsMigrationsEnabled().ApplyMigrations();
+                    if (await sqlServerDatabase.ExistsAsync())
                     {
                         await InsertTestData(serviceProvider);
                         if (createUsers)
