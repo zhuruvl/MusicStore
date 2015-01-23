@@ -191,14 +191,13 @@ namespace E2ETests
             logger.WriteInformation("Setting the --appbase to", startParameters.ApplicationPath);
 
             var dotnet = "dotnet";
-            var dotnetMonoManaged = Path.Combine(dotnetBin, "dotnet.mono.managed.dll");
 
             var commandName = startParameters.ServerType == ServerType.Kestrel ? "kestrel" : string.Empty;
             logger.WriteInformation(string.Format("Executing command: {0} {1} {2}", dotnet, startParameters.ApplicationPath, commandName));
 
             var startInfo = new ProcessStartInfo
             {
-                FileName = monoPath,
+                FileName = dotnet,
                 Arguments = string.Format("{0} {1}", startParameters.ApplicationPath, commandName),
                 UseShellExecute = false,
                 CreateNoWindow = true,
