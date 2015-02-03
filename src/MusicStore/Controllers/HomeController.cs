@@ -10,13 +10,18 @@ namespace MusicStore.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly MusicStoreContext _dbContext;
-        private readonly IMemoryCache _cache;
-
-        public HomeController(MusicStoreContext dbContext, IMemoryCache memoryCache)
+        [Activate]
+        public MusicStoreContext DbContext
         {
-            _dbContext = dbContext;
-            _cache = memoryCache;
+            get;
+            set;
+        }
+
+        [Activate]
+        public IMemoryCache MemoryCache
+        {
+            get;
+            set;
         }
 
         //
@@ -24,7 +29,7 @@ namespace MusicStore.Controllers
         public async Task<IActionResult> Index()
         {
             // Get most popular albums
-            var albums = await _cache.GetOrSet("topselling", async context =>
+            var albums = await MemoryCache.GetOrSet("topselling", async context =>
             {
                 //Refresh it every 10 minutes. Let this be the last item to be removed by cache if cache GC kicks in.
                 context.SetAbsoluteExpiration(TimeSpan.FromMinutes(10));
@@ -48,7 +53,7 @@ namespace MusicStore.Controllers
             // the albums with the highest count
 
             // TODO [EF] We don't query related data as yet, so the OrderByDescending isn't doing anything
-            return await _dbContext.Albums
+            return await DbContext.Albums
                 .OrderByDescending(a => a.OrderDetails.Count())
                 .Take(count)
                 .ToListAsync();
