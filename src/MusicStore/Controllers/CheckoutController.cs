@@ -32,7 +32,7 @@ namespace MusicStore.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddressAndPayment(CancellationToken requestAborted, Order order)
+        public async Task<IActionResult> AddressAndPayment(Order order, CancellationToken cancellationToken)
         {
             var formCollection = await Context.Request.ReadFormAsync();
 
@@ -56,7 +56,7 @@ namespace MusicStore.Controllers
                     await cart.CreateOrder(order);
 
                     // Save all changes
-                    await DbContext.SaveChangesAsync(requestAborted);
+                    await DbContext.SaveChangesAsync(cancellationToken);
 
                     return RedirectToAction("Complete", new { id = order.OrderId });
                 }

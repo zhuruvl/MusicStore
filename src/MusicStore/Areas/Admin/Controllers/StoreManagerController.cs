@@ -101,12 +101,12 @@ namespace MusicStore.Areas.Admin.Controllers
         // POST: /StoreManager/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CancellationToken requestAborted, Album album)
+        public async Task<IActionResult> Create(Album album, CancellationToken cancellationToken)
         {
             if (ModelState.IsValid)
             {
                 DbContext.Albums.Add(album);
-                await DbContext.SaveChangesAsync(requestAborted);
+                await DbContext.SaveChangesAsync(cancellationToken);
 
                 var albumData = new AlbumData
                 {
@@ -146,12 +146,12 @@ namespace MusicStore.Areas.Admin.Controllers
         // POST: /StoreManager/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(CancellationToken requestAborted, Album album)
+        public async Task<IActionResult> Edit(Album album, CancellationToken cancellationToken)
         {
             if (ModelState.IsValid)
             {
                 DbContext.Update(album);
-                await DbContext.SaveChangesAsync(requestAborted);
+                await DbContext.SaveChangesAsync(cancellationToken);
                 //Invalidate the cache entry as it is modified
                 MemoryCache.Remove(GetCacheKey(album.AlbumId));
                 return RedirectToAction("Index");
@@ -173,14 +173,14 @@ namespace MusicStore.Areas.Admin.Controllers
         //
         // POST: /StoreManager/RemoveAlbum/5
         [HttpPost, ActionName("RemoveAlbum")]
-        public async Task<IActionResult> RemoveAlbumConfirmed(CancellationToken requestAborted, int id)
+        public async Task<IActionResult> RemoveAlbumConfirmed(int id, CancellationToken cancellationToken)
         {
             var album = await DbContext.Albums.Where(a => a.AlbumId == id).FirstOrDefaultAsync();
 
             if (album != null)
             {
                 DbContext.Albums.Remove(album);
-                await DbContext.SaveChangesAsync(requestAborted);
+                await DbContext.SaveChangesAsync(cancellationToken);
                 //Remove the cache entry as it is removed
                 MemoryCache.Remove(GetCacheKey(id));
             }

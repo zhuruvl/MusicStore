@@ -37,7 +37,7 @@ namespace MusicStore.Controllers
         //
         // GET: /ShoppingCart/AddToCart/5
 
-        public async Task<IActionResult> AddToCart(CancellationToken requestAborted, int id)
+        public async Task<IActionResult> AddToCart(int id, CancellationToken cancellationToken)
         {
             // Retrieve the album from the database
             var addedAlbum = DbContext.Albums
@@ -48,7 +48,7 @@ namespace MusicStore.Controllers
 
             cart.AddToCart(addedAlbum);
 
-            await DbContext.SaveChangesAsync(requestAborted);
+            await DbContext.SaveChangesAsync(cancellationToken);
 
             // Go back to the main store page for more shopping
             return RedirectToAction("Index");
@@ -57,7 +57,7 @@ namespace MusicStore.Controllers
         //
         // AJAX: /ShoppingCart/RemoveFromCart/5
         [HttpPost]
-        public async Task<IActionResult> RemoveFromCart(CancellationToken requestAborted, int id)
+        public async Task<IActionResult> RemoveFromCart(int id, CancellationToken cancellationToken)
         {
             var formParameters = await Context.Request.ReadFormAsync();
             var requestVerification = formParameters["RequestVerificationToken"];
@@ -90,7 +90,7 @@ namespace MusicStore.Controllers
             // Remove from cart
             int itemCount = cart.RemoveFromCart(id);
 
-            await DbContext.SaveChangesAsync(requestAborted);
+            await DbContext.SaveChangesAsync(cancellationToken);
 
             string removed = (itemCount > 0) ? " 1 copy of " : string.Empty;
 
