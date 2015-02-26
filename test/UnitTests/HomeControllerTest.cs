@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNet.Mvc;
 using Microsoft.Data.Entity;
 using Microsoft.Framework.Cache.Memory;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
-using MusicStore.Controllers;
 using MusicStore.Models;
-using System.Linq;
 
-namespace UnitTests
+namespace MusicStore.Controllers
 {
     public class HomeControllerTest
     {
-        IServiceProvider _serviceProvider;
+        private readonly IServiceProvider _serviceProvider;
 
         public HomeControllerTest()
         {

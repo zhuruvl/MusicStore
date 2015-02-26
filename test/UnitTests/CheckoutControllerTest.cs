@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNet.Http.Core;
 using Microsoft.AspNet.Http.Core.Collections;
 using Microsoft.AspNet.Mvc;
@@ -9,14 +10,13 @@ using Microsoft.AspNet.Routing;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
-using MusicStore.Controllers;
 using MusicStore.Models;
 
-namespace UnitTests
+namespace MusicStore.Controllers 
 {
     public class CheckoutControllerTest
     {
-        IServiceProvider _serviceProvider;
+        private readonly IServiceProvider _serviceProvider;
 
         public CheckoutControllerTest()
         {
@@ -30,7 +30,7 @@ namespace UnitTests
         }
 
         [Fact]
-        public void AddressAndPaymente_ReturnsDefaultView()
+        public void AddressAndPayment_ReturnsDefaultView()
         {
             // Arrange
             var controller = new CheckoutController();
@@ -44,7 +44,38 @@ namespace UnitTests
         }
 
         [Fact]
-        public void AddressAndPayment_ReturnsOrderIfInvalidPromoCode()
+        public async Task AddressAndPayment_ReturnsOrderIfInvalidPromoCode()
+        {
+            // Arrange
+            var context = new DefaultHttpContext();
+
+            // AddressAndPayment action reads the Promo code from FormCollection.
+            context.Request.Form =
+                new FormCollection(new Dictionary<string, string[]>());
+
+            var controller = new CheckoutController()
+            {
+                ActionContext = new ActionContext(
+                    context,
+                    new RouteData(),
+                    new ActionDescriptor()),
+            };
+
+            // Do not need actual data for Order; the Order object will be checked for the reference equality.
+            var order = new Order();
+
+            // Act
+            var result = await controller.AddressAndPayment(order, new CancellationToken(false));
+
+            // Assert
+            var viewResult = Assert.IsType<ViewResult>(result);
+
+            Assert.NotNull(viewResult.ViewData);
+            Assert.Same(order, viewResult.ViewData.Model);
+        }
+
+        [Fact]
+        public async Task AddressAndPayment_ReturnsOrderIfRequestCanceled()
         {
             // Arrange
             var context = new DefaultHttpContext();
@@ -62,7 +93,7 @@ namespace UnitTests
             var order = new Order();
 
             // Act
-            var result = controller.AddressAndPayment(order, new CancellationToken(false)).Result;
+            var result = await controller.AddressAndPayment(order, new CancellationToken(true));
 
             // Assert
             var viewResult = Assert.IsType<ViewResult>(result);
@@ -72,35 +103,25 @@ namespace UnitTests
         }
 
         [Fact]
-        public void AddressAndPayment_ReturnsOrderIfRequestCanceled()
+        public async Task AddressAndPayment_ReturnsOrderIfInvalidOrderModel()
         {
             // Arrange
-            var context = new DefaultHttpContext();
-            context.Request.Form =
-                new FormCollection(new Dictionary<string, string[]>());
-
-            var controller = new CheckoutController()
-            {
-                ActionContext = new ActionContext(
-                    context,
-                    new RouteData(),
-                    new ActionDescriptor()),
-            };
+            var controller = new CheckoutController();
+            controller.ModelState.AddModelError("a", "ModelErrorA");
 
             var order = new Order();
 
             // Act
-            var result = controller.AddressAndPayment(order, new CancellationToken(true)).Result;
+            var result = await controller.AddressAndPayment(order, new CancellationToken(false));
 
             // Assert
             var viewResult = Assert.IsType<ViewResult>(result);
-
             Assert.NotNull(viewResult.ViewData);
             Assert.Same(order, viewResult.ViewData.Model);
         }
 
         [Fact]
-        public void Complete_ReturnsOrderIdIfValid()
+        public async Task Complete_ReturnsOrderIdIfValid()
         {
             // Arrange
             var orderId = 100;
@@ -131,7 +152,7 @@ namespace UnitTests
             };
 
             // Act
-            var result = controller.Complete(orderId).Result;
+            var result = await controller.Complete(orderId);
 
             // Assert
             var viewResult = Assert.IsType<ViewResult>(result);
@@ -141,7 +162,7 @@ namespace UnitTests
         }
 
         [Fact]
-        public void Complete_RetrunsErrorIfInvalidOrder()
+        public async Task Complete_ReturnsErrorIfInvalidOrder()
         {
             // Arrange
             var dbContext =
@@ -157,7 +178,7 @@ namespace UnitTests
             };
 
             // Act
-            var result = controller.Complete(100).Result;
+            var result = await controller.Complete(100);
 
             // Assert
             var viewResult = Assert.IsType<ViewResult>(result);
