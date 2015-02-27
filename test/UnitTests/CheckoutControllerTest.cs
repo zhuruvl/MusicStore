@@ -65,7 +65,7 @@ namespace MusicStore.Controllers
             var order = new Order();
 
             // Act
-            var result = await controller.AddressAndPayment(order, new CancellationToken(false));
+            var result = await controller.AddressAndPayment(order, CancellationToken.None);
 
             // Assert
             var viewResult = Assert.IsType<ViewResult>(result);
@@ -112,7 +112,7 @@ namespace MusicStore.Controllers
             var order = new Order();
 
             // Act
-            var result = await controller.AddressAndPayment(order, new CancellationToken(false));
+            var result = await controller.AddressAndPayment(order, CancellationToken.None);
 
             // Assert
             var viewResult = Assert.IsType<ViewResult>(result);
