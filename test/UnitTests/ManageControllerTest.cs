@@ -45,13 +45,13 @@ namespace MusicStore.Controllers
             var phone = "abcdefg";
             var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, userId) };
 
-            var userManager = _serviceProvider.GetService<UserManager<ApplicationUser>>();
-            await userManager.CreateAsync(
-                new ApplicationUser
-                { Id = userId, UserName = "Test", TwoFactorEnabled = true, PhoneNumber = phone },
+            var userManager = _serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var userManagerResult = await userManager.CreateAsync(
+                new ApplicationUser { Id = userId, UserName = "Test", TwoFactorEnabled = true, PhoneNumber = phone },
                 "Pass@word1");
+            Assert.True(userManagerResult.Succeeded);
 
-            var signInManager = _serviceProvider.GetService<SignInManager<ApplicationUser>>();
+            var signInManager = _serviceProvider.GetRequiredService<SignInManager<ApplicationUser>>();
 
             var httpContext = _serviceProvider.GetRequiredService<IHttpContextAccessor>().Value;
             httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(claims));
