@@ -24,7 +24,7 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MusicStore", "src\MusicStor
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MusicStore.Spa", "src\MusicStore.Spa\MusicStore.Spa.kproj", "{93891170-A8D5-46FD-A291-40F90CF258C2}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "UnitTests", "test\UnitTests\UnitTests.kproj", "{BECA766F-093E-4D08-9530-2BFA63C5BF93}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MusicStore.Test", "test\MusicStore.Test\MusicStore.Test.kproj", "{BECA766F-093E-4D08-9530-2BFA63C5BF93}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
