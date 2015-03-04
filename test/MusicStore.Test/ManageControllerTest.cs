@@ -4,16 +4,15 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Hosting;
 using Microsoft.AspNet.Http;
+using Microsoft.AspNet.Http.Authentication;
 using Microsoft.AspNet.Http.Core;
-using Microsoft.AspNet.Http.Core.Security;
-using Microsoft.AspNet.Http.Security;
+using Microsoft.AspNet.Http.Core.Authentication;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Mvc;
-using Microsoft.AspNet.Routing;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Xunit;
 using MusicStore.Models;
+using Xunit;
 
 namespace MusicStore.Controllers
 {
@@ -32,7 +31,11 @@ namespace MusicStore.Controllers
                     .AddEntityFrameworkStores<MusicStoreContext>();
 
             // IHttpContextAccessor is required for SignInManager, and UserManager
-            services.AddInstance<IHttpContextAccessor>(new TestHttpContextAcccessor());
+            services.AddInstance<IHttpContextAccessor>(
+                new HttpContextAccessor()
+                    {
+                        HttpContext = new TestHttpContext(),
+                    });
 
             _serviceProvider = services.BuildServiceProvider();
         }
@@ -53,63 +56,39 @@ namespace MusicStore.Controllers
 
             var signInManager = _serviceProvider.GetRequiredService<SignInManager<ApplicationUser>>();
 
-            var httpContext = _serviceProvider.GetRequiredService<IHttpContextAccessor>().Value;
+            var httpContext = _serviceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext;
             httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(claims));
 
             var controller = new ManageController()
             {
-                ActionContext = new ActionContext(
-                    httpContext,
-                    new RouteData(),
-                    new ActionDescriptor()),
                 UserManager = userManager,
                 SignInManager = signInManager,
             };
+            controller.ActionContext.HttpContext = httpContext;
 
             // Act
             var result = await controller.Index();
 
             // Assert
             var viewResult = Assert.IsType<ViewResult>(result);
-            Assert.NotNull(viewResult.ViewData);
+            Assert.Null(viewResult.ViewName);
 
+            Assert.Empty(controller.ViewBag.StatusMessage);
+
+            Assert.NotNull(viewResult.ViewData);
             var model = Assert.IsType<IndexViewModel>(viewResult.ViewData.Model);
             Assert.True(model.TwoFactor);
             Assert.Equal(phone, model.PhoneNumber);
             Assert.True(model.HasPassword);
         }
 
-        private class TestHttpContextAcccessor : IHttpContextAccessor
-        {
-            private HttpContext _httpContext;
-
-            public TestHttpContextAcccessor()
-            {
-                _httpContext = new TestHttpContext();
-            }
-
-            public HttpContext Value
-            {
-                get
-                {
-                    return _httpContext;
-                }
-
-                set
-                {
-                    _httpContext = value;
-                }
-            }
-        }
-
         private class TestHttpContext : DefaultHttpContext
         {
-            public override async Task<IEnumerable<AuthenticationResult>>
+            public override Task<IEnumerable<AuthenticationResult>>
                 AuthenticateAsync(IEnumerable<string> authenticationTypes)
             {
-                return await Task.Run<IEnumerable<AuthenticationResult>>(
-                    () =>
-                     new AuthenticateContext(authenticationTypes).Results);
+                return
+                    Task.FromResult(new AuthenticateContext(authenticationTypes).Results);
             }
         }
     }
