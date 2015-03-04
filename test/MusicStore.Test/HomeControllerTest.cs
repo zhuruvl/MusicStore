@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNet.Mvc;
 using Microsoft.Data.Entity;
 using Microsoft.Framework.Cache.Memory;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Xunit;
 using MusicStore.Models;
+using Xunit;
 
 namespace MusicStore.Controllers
 {
@@ -43,7 +44,7 @@ namespace MusicStore.Controllers
         }
 
         [Fact]
-        public void Index_GetsSixTopAlbums()
+        public async Task Index_GetsSixTopAlbums()
         {
             // Arrange
             var controller = new HomeController()
@@ -55,10 +56,11 @@ namespace MusicStore.Controllers
             PopulateData(controller.DbContext);
 
             // Action
-            var result = controller.Index().Result;
+            var result = await controller.Index();
 
             // Assert
             var viewResult = Assert.IsType<ViewResult>(result);
+            Assert.Null(viewResult.ViewName);
 
             Assert.NotNull(viewResult.ViewData);
             Assert.NotNull(viewResult.ViewData.Model);

@@ -31,7 +31,7 @@ namespace MusicStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddressAndPayment([FromForm] Order order, CancellationToken requestAborted)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return View(order);
             }

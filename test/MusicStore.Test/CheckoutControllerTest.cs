@@ -9,8 +9,8 @@ using Microsoft.AspNet.Mvc;
 using Microsoft.AspNet.Routing;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Xunit;
 using MusicStore.Models;
+using Xunit;
 
 namespace MusicStore.Controllers 
 {
@@ -53,13 +53,8 @@ namespace MusicStore.Controllers
             context.Request.Form =
                 new FormCollection(new Dictionary<string, string[]>());
 
-            var controller = new CheckoutController()
-            {
-                ActionContext = new ActionContext(
-                    context,
-                    new RouteData(),
-                    new ActionDescriptor()),
-            };
+            var controller = new CheckoutController();
+            controller.ActionContext.HttpContext = context;
 
             // Do not need actual data for Order; the Order object will be checked for the reference equality.
             var order = new Order();
@@ -69,6 +64,7 @@ namespace MusicStore.Controllers
 
             // Assert
             var viewResult = Assert.IsType<ViewResult>(result);
+            Assert.Null(viewResult.ViewName);
 
             Assert.NotNull(viewResult.ViewData);
             Assert.Same(order, viewResult.ViewData.Model);
@@ -82,13 +78,8 @@ namespace MusicStore.Controllers
             context.Request.Form =
                 new FormCollection(new Dictionary<string, string[]>());
 
-            var controller = new CheckoutController()
-            {
-                ActionContext = new ActionContext(
-                    context,
-                    new RouteData(),
-                    new ActionDescriptor()),
-            };
+            var controller = new CheckoutController();
+            controller.ActionContext.HttpContext = context;
 
             var order = new Order();
 
@@ -97,6 +88,7 @@ namespace MusicStore.Controllers
 
             // Assert
             var viewResult = Assert.IsType<ViewResult>(result);
+            Assert.Null(viewResult.ViewName);
 
             Assert.NotNull(viewResult.ViewData);
             Assert.Same(order, viewResult.ViewData.Model);
@@ -116,6 +108,8 @@ namespace MusicStore.Controllers
 
             // Assert
             var viewResult = Assert.IsType<ViewResult>(result);
+            Assert.Null(viewResult.ViewName);
+
             Assert.NotNull(viewResult.ViewData);
             Assert.Same(order, viewResult.ViewData.Model);
         }
@@ -144,18 +138,16 @@ namespace MusicStore.Controllers
 
             var controller = new CheckoutController()
             {
-                ActionContext = new ActionContext(
-                    httpContext,
-                    new RouteData(),
-                    new ActionDescriptor()),
                 DbContext = dbContext,
             };
+            controller.ActionContext.HttpContext = httpContext;
 
             // Act
             var result = await controller.Complete(orderId);
 
             // Assert
             var viewResult = Assert.IsType<ViewResult>(result);
+            Assert.Null(viewResult.ViewName);
 
             Assert.NotNull(viewResult.ViewData);
             Assert.Equal(orderId, viewResult.ViewData.Model);
@@ -165,20 +157,18 @@ namespace MusicStore.Controllers
         public async Task Complete_ReturnsErrorIfInvalidOrder()
         {
             // Arrange
+            var invalidOrderId = 100;
             var dbContext =
                 _serviceProvider.GetRequiredService<MusicStoreContext>();
 
             var controller = new CheckoutController()
             {
-                ActionContext = new ActionContext(
-                    new DefaultHttpContext(),
-                    new RouteData(),
-                    new ActionDescriptor()),
                 DbContext = dbContext,
             };
+            controller.ActionContext.HttpContext = new DefaultHttpContext();
 
             // Act
-            var result = await controller.Complete(100);
+            var result = await controller.Complete(invalidOrderId);
 
             // Assert
             var viewResult = Assert.IsType<ViewResult>(result);
