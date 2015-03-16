@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Http;
 using Microsoft.AspNet.Http.Core;
-using Microsoft.AspNet.Http.Core.Collections;
 using Microsoft.AspNet.Mvc;
 using Microsoft.AspNet.Session;
 using Microsoft.AspNet.Testing.Logging;
@@ -156,8 +155,8 @@ namespace MusicStore.Controllers
 
             // Creates the albums of AlbumId = 1 ~ 10.
             var dbContext = _serviceProvider.GetRequiredService<MusicStoreContext>();
-            var alubms = CreateTestAlbums(itemPrice: 10);
-            dbContext.AddRange(alubms);
+            var albums = CreateTestAlbums(itemPrice: 10);
+            dbContext.AddRange(albums);
             dbContext.SaveChanges();
 
             var controller = new ShoppingCartController()
@@ -211,19 +210,19 @@ namespace MusicStore.Controllers
             // AntiForgery initialization
             serviceProviderFeature.RequestServices = _serviceProvider;
             var antiForgery = serviceProviderFeature.RequestServices.GetRequiredService<AntiForgery>();
-            var tokens = antiForgery.GetTokens(httpContext, "tesToken");
+            var tokens = antiForgery.GetTokens(httpContext, "testToken");
 
             // Form initialization for AntiForgery
-            var formData = new Dictionary<string, string[]>()
-            {
-                { "RequestVerificationToken", new string[] { tokens.CookieToken + ":" + tokens.FormToken } }
-            };
-            httpContext.Request.Form = new FormCollection(formData);
+            var headers = new KeyValuePair<string, string[]>(
+                "RequestVerificationToken",
+                new string[] { tokens.CookieToken + ":" + tokens.FormToken });
+            httpContext.Request.Headers.Add(headers);
 
             // Cotroller initialization
             var controller = new ShoppingCartController()
             {
                 DbContext = dbContext,
+                AntiForgery = antiForgery,
             };
             controller.ActionContext.HttpContext = httpContext;
 

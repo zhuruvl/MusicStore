@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Hosting;
-using Microsoft.AspNet.Http;
 using Microsoft.AspNet.Http.Authentication;
 using Microsoft.AspNet.Http.Core;
 using Microsoft.AspNet.Http.Core.Authentication;
@@ -83,11 +82,11 @@ namespace MusicStore.Controllers
 
         private class TestHttpContext : DefaultHttpContext
         {
-            public override Task<IEnumerable<AuthenticationResult>>
-                AuthenticateAsync(IEnumerable<string> authenticationTypes)
+            public override Task<AuthenticationResult>
+                AuthenticateAsync(string authenticationTypes)
             {
                 return
-                    Task.FromResult(new AuthenticateContext(authenticationTypes).Results);
+                    Task.FromResult(new AuthenticateContext(authenticationTypes).Result);
             }
         }
     }
