@@ -212,7 +212,7 @@ namespace MusicStore.Controllers
             var antiForgery = serviceProviderFeature.RequestServices.GetRequiredService<AntiForgery>();
             var tokens = antiForgery.GetTokens(httpContext, "testToken");
 
-            // Form initialization for AntiForgery
+            // Header initialization for AntiForgery
             var headers = new KeyValuePair<string, string[]>(
                 "RequestVerificationToken",
                 new string[] { tokens.CookieToken + ":" + tokens.FormToken });
