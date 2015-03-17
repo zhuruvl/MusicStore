@@ -9,7 +9,7 @@ namespace E2ETests
 {
     public partial class SmokeTests
     {
-        [ConditionalTheory]
+        //[ConditionalTheory]
         [FrameworkSkipCondition(RuntimeFrameworks.Mono)]
         [InlineData(ServerType.IISExpress, RuntimeFlavor.DesktopClr, RuntimeArchitecture.x86, "http://localhost:5001/")]
         public void OpenIdConnect_OnX86(ServerType serverType, RuntimeFlavor runtimeFlavor, RuntimeArchitecture architecture, string applicationBaseUrl)
@@ -17,7 +17,7 @@ namespace E2ETests
             OpenIdConnectTestSuite(serverType, runtimeFlavor, architecture, applicationBaseUrl);
         }
 
-        [ConditionalTheory]
+        //[ConditionalTheory]
         [FrameworkSkipCondition(RuntimeFrameworks.DotNet)]
         // Fails due to https://github.com/aspnet/XRE/issues/1129. 
         [InlineData(ServerType.Kestrel, RuntimeFlavor.Mono, RuntimeArchitecture.x86, "http://localhost:5004/")]

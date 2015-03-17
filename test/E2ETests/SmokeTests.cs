@@ -24,7 +24,7 @@ namespace E2ETests
             _logger = loggerFactory.CreateLogger<SmokeTests>();
         }
 
-        [ConditionalTheory]
+        //[ConditionalTheory]
         [FrameworkSkipCondition(RuntimeFrameworks.Mono)]
         [InlineData(ServerType.IISExpress, RuntimeFlavor.DesktopClr, RuntimeArchitecture.x86, "http://localhost:5001/")]
         [InlineData(ServerType.WebListener, RuntimeFlavor.DesktopClr, RuntimeArchitecture.x86, "http://localhost:5002/")]
@@ -37,7 +37,7 @@ namespace E2ETests
             SmokeTestSuite(serverType, runtimeFlavor, architecture, applicationBaseUrl);
         }
 
-        [ConditionalTheory]
+        //[ConditionalTheory]
         [FrameworkSkipCondition(RuntimeFrameworks.Mono)]
         [SkipOn32BitOS]
         [InlineData(ServerType.WebListener, RuntimeFlavor.DesktopClr, RuntimeArchitecture.amd64, "http://localhost:5002/")]
@@ -48,7 +48,7 @@ namespace E2ETests
             SmokeTestSuite(serverType, donetFlavor, architecture, applicationBaseUrl);
         }
 
-        [ConditionalTheory]
+        //[ConditionalTheory]
         [FrameworkSkipCondition(RuntimeFrameworks.DotNet)]
         [InlineData(ServerType.Kestrel, RuntimeFlavor.Mono, RuntimeArchitecture.x86, "http://localhost:5004/")]
         public void SmokeTestSuite_OnMono(ServerType serverType, RuntimeFlavor donetFlavor, RuntimeArchitecture architecture, string applicationBaseUrl)
@@ -56,7 +56,7 @@ namespace E2ETests
             SmokeTestSuite(serverType, donetFlavor, architecture, applicationBaseUrl);
         }
 
-        [ConditionalTheory]
+        //[ConditionalTheory]
         [SkipIfNativeModuleNotInstalled]
         [FrameworkSkipCondition(RuntimeFrameworks.Mono)]
         [OSSkipCondition(OperatingSystems.Win7And2008R2 | OperatingSystems.MacOSX | OperatingSystems.Unix)]
@@ -67,7 +67,7 @@ namespace E2ETests
             SmokeTestSuite(serverType, donetFlavor, architecture, applicationBaseUrl);
         }
 
-        [ConditionalTheory]
+        //[ConditionalTheory]
         [SkipIfNativeModuleNotInstalled]
         [FrameworkSkipCondition(RuntimeFrameworks.Mono)]
         [OSSkipCondition(OperatingSystems.Win7And2008R2 | OperatingSystems.MacOSX | OperatingSystems.Unix)]
@@ -79,7 +79,7 @@ namespace E2ETests
             SmokeTestSuite(serverType, donetFlavor, architecture, applicationBaseUrl);
         }
 
-        // [ConditionalTheory]
+        // //[ConditionalTheory]
         [FrameworkSkipCondition(RuntimeFrameworks.Mono)]
         [OSSkipCondition(OperatingSystems.MacOSX | OperatingSystems.Unix)]
         [SkipIfCurrentRuntimeIsCoreClr]

@@ -378,7 +378,7 @@ namespace E2ETests
                 }
             }
 
-            if (startParameters.BundleApplicationBeforeStart)
+            if (startParameters.BundleApplicationBeforeStart && !startParameters.BundleWithNoSource)
             {
                 try
                 {
