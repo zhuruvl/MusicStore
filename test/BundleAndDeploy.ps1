@@ -55,8 +55,8 @@ try
 
     Write-Host "Bundling the application..."
     cd "$workDir"
-    kvm use -r CoreCLR -arch x64
-    kpm bundle --runtime active
+    dnvm use -r CoreCLR -arch x64
+    dnu bundle --runtime active
     if ($lastexitcode -ne 0) {
         Write-Error "Failed to bundle the application"
         exit 1
