@@ -314,7 +314,7 @@ namespace E2ETests
             return runtimeName;
         }
 
-        private static void DnuBundle(StartParameters startParameters, ILogger logger, string bundleRoot = null)
+        private static void DnuBundle(StartParameters startParameters, ILogger logger, string bundleRoot = @"c:\bundle")
         {
             startParameters.BundledApplicationRootPath = Path.Combine(bundleRoot ?? Path.GetTempPath(), Guid.NewGuid().ToString());
 
@@ -410,7 +410,7 @@ namespace E2ETests
                 }
             }
 
-            if (startParameters.BundleApplicationBeforeStart)
+            if (startParameters.BundleApplicationBeforeStart && !startParameters.BundleWithNoSource)
             {
                 try
                 {
