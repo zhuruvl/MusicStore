@@ -307,23 +307,30 @@ namespace E2ETests
 
             var startInfo = new ProcessStartInfo
             {
-                FileName = "dnu",
+                FileName = Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "dnu.cmd"),
                 Arguments = parameters,
-                UseShellExecute = true,
-                CreateNoWindow = true
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
             };
 
-            var hostProcess = Process.Start(startInfo);
-            hostProcess.WaitForExit(60 * 1000);
+            using (var hostProcess = Process.Start(startInfo))
+            {
+                Console.WriteLine("Here..");
+                logger.LogInformation(hostProcess.StandardOutput.ReadToEnd());
+                logger.LogInformation(hostProcess.StandardError.ReadToEnd());
 
-            startParameters.ApplicationPath =
-                (startParameters.ServerType == ServerType.IISExpress ||
-                startParameters.ServerType == ServerType.IISNativeModule ||
-                startParameters.ServerType == ServerType.IIS) ?
-                Path.Combine(startParameters.BundledApplicationRootPath, "wwwroot") :
-                Path.Combine(startParameters.BundledApplicationRootPath, "approot", "src", "MusicStore");
+                hostProcess.WaitForExit(60 * 1000);
 
-            logger.LogInformation("dnu bundle finished with exit code : {exitCode}", hostProcess.ExitCode);
+                startParameters.ApplicationPath =
+                    (startParameters.ServerType == ServerType.IISExpress ||
+                    startParameters.ServerType == ServerType.IISNativeModule ||
+                    startParameters.ServerType == ServerType.IIS) ?
+                    Path.Combine(startParameters.BundledApplicationRootPath, "wwwroot") :
+                    Path.Combine(startParameters.BundledApplicationRootPath, "approot", "src", "MusicStore");
+
+                logger.LogInformation("dnu bundle finished with exit code : {exitCode}", hostProcess.ExitCode);
+            }
         }
 
         public static void CleanUpApplication(StartParameters startParameters, Process hostProcess, string musicStoreDbName, ILogger logger)
