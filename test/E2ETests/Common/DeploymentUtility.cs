@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.Framework.Logging;
 
@@ -213,11 +214,33 @@ namespace E2ETests
             {
                 FileName = iisExpressPath,
                 Arguments = parameters,
-                UseShellExecute = true,
-                CreateNoWindow = true
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
             };
 
+            startInfo.EnvironmentVariables["DNX_TRACE"] = "1";
+
             var hostProcess = Process.Start(startInfo);
+
+            Task.Run(() =>
+            {
+                while(!hostProcess.StandardOutput.EndOfStream)
+                {
+                    Console.WriteLine(hostProcess.StandardOutput.ReadLine());
+                }
+            });
+
+            Task.Run(() =>
+            {
+                while (!hostProcess.StandardError.EndOfStream)
+                {
+                    Console.WriteLine(hostProcess.StandardError.ReadLine());
+                }
+            });
+
+            Console.WriteLine("Here..");
+
             logger.LogInformation("Started iisexpress. Process Id : {processId}", hostProcess.Id);
 
             return hostProcess;
@@ -316,7 +339,6 @@ namespace E2ETests
 
             using (var hostProcess = Process.Start(startInfo))
             {
-                Console.WriteLine("Here..");
                 logger.LogInformation(hostProcess.StandardOutput.ReadToEnd());
                 logger.LogInformation(hostProcess.StandardError.ReadToEnd());
 
